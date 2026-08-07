@@ -214,6 +214,23 @@
     color:var(--black);
     line-height:1;
     font-variant-numeric:tabular-nums;
+    cursor:pointer;
+  }
+  .time-edit-input{
+    display:none;
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(46px, 15vw, 62px);
+    letter-spacing:0.02em;
+    color:var(--black);
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+    text-align:center;
+    background:none;
+    border:none;
+    border-bottom:2px solid var(--blue-600);
+    outline:none;
+    width:100%;
+    padding:0;
   }
   .time-label{
     font-size:9.5px;
@@ -292,6 +309,22 @@
     letter-spacing:0.05em;
     color:var(--navy);
   }
+  .pair-title-input{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:15px;
+    letter-spacing:0.05em;
+    color:var(--navy);
+    text-transform:uppercase;
+    background:none;
+    border:none;
+    border-bottom:1.5px solid transparent;
+    padding:2px 1px 3px;
+    outline:none;
+    max-width:62%;
+    min-width:0;
+  }
+  .pair-title-input:focus{ border-bottom-color:var(--blue-600); }
+  .pair-title-input::placeholder{ color:var(--grey-600); -webkit-text-fill-color:var(--grey-600); }
   .pair-divider{
     border:none;
     border-top:1px solid var(--grey-200);
@@ -450,7 +483,8 @@
           <circle class="ring-fg" id="ringFg" cx="125" cy="125" r="108" stroke-dasharray="678.6" stroke-dashoffset="0"></circle>
         </svg>
         <div class="ring-center">
-          <div class="time-display" id="timeDisplay">00:15</div>
+          <div class="time-display" id="timeDisplay" title="Toque para editar o tempo">00:15</div>
+          <input class="time-edit-input" id="timeEditInput" type="text" inputmode="numeric" maxlength="5">
           <div class="time-label" id="timeLabel">TEMPO SELECIONADO</div>
           <!-- Play/Pause: único controle de acionamento do cronômetro, e fica apenas aqui dentro do círculo -->
           <button class="play-pause" id="playPauseBtn" type="button" aria-label="Iniciar ou pausar contagem">
@@ -481,7 +515,7 @@
     <div id="duplaView" style="display:none;">
       <div class="pair-card" id="pairCardA">
         <div class="pair-head">
-          <div class="pair-title">ALUNO 1</div>
+          <input class="pair-title-input" id="pairNameA" type="text" value="ALUNO 1" maxlength="24" spellcheck="false" aria-label="Nome do aluno 1">
           <button class="reset-link" id="pairResetA" type="button" title="Reiniciar este tempo">reiniciar</button>
         </div>
         <div class="timer-wrap">
@@ -491,7 +525,8 @@
               <circle class="ring-fg" id="pairRingA" cx="125" cy="125" r="108" stroke-dasharray="678.6" stroke-dashoffset="0"></circle>
             </svg>
             <div class="ring-center">
-              <div class="time-display" id="pairTimeA">00:20</div>
+              <div class="time-display" id="pairTimeA" title="Toque para editar o tempo">00:20</div>
+              <input class="time-edit-input" id="pairTimeEditA" type="text" inputmode="numeric" maxlength="5">
               <div class="time-label">TEMPO SELECIONADO</div>
               <button class="play-pause" id="pairPlayA" type="button" aria-label="Iniciar ou pausar contagem do aluno 1">
                 <svg id="pairPlayIconA" viewBox="0 0 24 24" fill="currentColor"><polygon points="7 4 20 12 7 20 7 4"/></svg>
@@ -513,7 +548,7 @@
 
       <div class="pair-card" id="pairCardB">
         <div class="pair-head">
-          <div class="pair-title">ALUNO 2</div>
+          <input class="pair-title-input" id="pairNameB" type="text" value="ALUNO 2" maxlength="24" spellcheck="false" aria-label="Nome do aluno 2">
           <button class="reset-link" id="pairResetB" type="button" title="Reiniciar este tempo">reiniciar</button>
         </div>
         <div class="timer-wrap">
@@ -523,7 +558,8 @@
               <circle class="ring-fg" id="pairRingB" cx="125" cy="125" r="108" stroke-dasharray="678.6" stroke-dashoffset="0"></circle>
             </svg>
             <div class="ring-center">
-              <div class="time-display" id="pairTimeB">00:20</div>
+              <div class="time-display" id="pairTimeB" title="Toque para editar o tempo">00:20</div>
+              <input class="time-edit-input" id="pairTimeEditB" type="text" inputmode="numeric" maxlength="5">
               <div class="time-label">TEMPO SELECIONADO</div>
               <button class="play-pause" id="pairPlayB" type="button" aria-label="Iniciar ou pausar contagem do aluno 2">
                 <svg id="pairPlayIconB" viewBox="0 0 24 24" fill="currentColor"><polygon points="7 4 20 12 7 20 7 4"/></svg>
@@ -584,6 +620,7 @@
   var stopwatchSection = document.getElementById('stopwatchSection');
   var stopwatchToggleBtn = document.getElementById('stopwatchToggleBtn');
   var timeDisplay = document.getElementById('timeDisplay');
+  var timeEditInput = document.getElementById('timeEditInput');
   var timeLabel = document.getElementById('timeLabel');
   var intervalBadge = document.getElementById('intervalBadge');
   var resetCountBtn = document.getElementById('resetCountBtn');
@@ -643,6 +680,21 @@
     var m = Math.floor(s/60);
     var sec = s % 60;
     return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+  }
+  function parseTimeInput(str){
+    str = (str || '').trim();
+    if(!str) return null;
+    if(str.indexOf(':') !== -1){
+      var parts = str.split(':');
+      if(parts.length !== 2) return null;
+      var m = parseInt(parts[0], 10);
+      var s = parseInt(parts[1], 10);
+      if(isNaN(m) || isNaN(s)) return null;
+      return (m*60) + s;
+    }
+    var n = parseInt(str, 10);
+    if(isNaN(n)) return null;
+    return n;
   }
   function ordinal(n){ return n + 'º'; }
 
@@ -951,6 +1003,35 @@
   });
 
   // =========================================================
+  // EDITAR O TEMPO DIRETO NO RELÓGIO (toque no número, modo contagem regressiva)
+  // =========================================================
+  timeDisplay.addEventListener('click', function(){
+    if(running || mode !== 'countdown') return;
+    timeEditInput.value = formatTime(remaining);
+    timeDisplay.style.display = 'none';
+    timeEditInput.style.display = 'block';
+    timeEditInput.focus();
+    timeEditInput.select();
+  });
+  function commitTimeEdit(){
+    var v = parseTimeInput(timeEditInput.value);
+    if(v === null || v <= 0){ v = remaining; }
+    v = Math.min(v, 5999);
+    presets[selectedIndex] = v;
+    remaining = v;
+    renderTimeDisplay();
+    updateRing();
+    renderGrid();
+    timeEditInput.style.display = 'none';
+    timeDisplay.style.display = '';
+  }
+  timeEditInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ commitTimeEdit(); }
+    if(e.key === 'Escape'){ timeEditInput.style.display = 'none'; timeDisplay.style.display = ''; }
+  });
+  timeEditInput.addEventListener('blur', commitTimeEdit);
+
+  // =========================================================
   // INÍCIO DO EXERCÍCIO / FIM DO EXERCÍCIO — apenas marcadores
   // de status da sessão, não controlam o cronômetro
   // =========================================================
@@ -1041,6 +1122,25 @@
     var pPlayIcon = document.getElementById('pairPlayIcon' + suffix);
     var pPauseIcon = document.getElementById('pairPauseIcon' + suffix);
     var pResetBtn = document.getElementById('pairReset' + suffix);
+    var pTimeEditInput = document.getElementById('pairTimeEdit' + suffix);
+    var pNameInput = document.getElementById('pairName' + suffix);
+    var defaultName = pNameInput.value;
+
+    try{
+      var savedName = localStorage.getItem('bp_pairName' + suffix);
+      if(savedName){ pNameInput.value = savedName; }
+    }catch(e){}
+
+    pNameInput.addEventListener('focus', function(){ pNameInput.select(); });
+    pNameInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ pNameInput.blur(); }
+    });
+    pNameInput.addEventListener('blur', function(){
+      var v = pNameInput.value.trim();
+      if(!v){ v = defaultName; }
+      pNameInput.value = v;
+      try{ localStorage.setItem('bp_pairName' + suffix, v); }catch(e){}
+    });
 
     function updateRing(){
       var total = presets[selectedIndex];
@@ -1177,6 +1277,32 @@
       var isOpen = pSection.classList.toggle('open');
       pToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
+
+    pTimeDisplay.addEventListener('click', function(){
+      if(running) return;
+      pTimeEditInput.value = formatTime(remaining);
+      pTimeDisplay.style.display = 'none';
+      pTimeEditInput.style.display = 'block';
+      pTimeEditInput.focus();
+      pTimeEditInput.select();
+    });
+    function commitTimeEdit(){
+      var v = parseTimeInput(pTimeEditInput.value);
+      if(v === null || v <= 0){ v = remaining; }
+      v = Math.min(v, 5999);
+      presets[selectedIndex] = v;
+      remaining = v;
+      renderTimeDisplay();
+      updateRing();
+      renderGrid();
+      pTimeEditInput.style.display = 'none';
+      pTimeDisplay.style.display = '';
+    }
+    pTimeEditInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ commitTimeEdit(); }
+      if(e.key === 'Escape'){ pTimeEditInput.style.display = 'none'; pTimeDisplay.style.display = ''; }
+    });
+    pTimeEditInput.addEventListener('blur', commitTimeEdit);
 
     renderGrid();
     renderTimeDisplay();
