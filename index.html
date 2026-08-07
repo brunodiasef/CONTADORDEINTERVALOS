@@ -32,10 +32,7 @@
   html,body{ margin:0; padding:0; height:100%; overscroll-behavior:none; }
   body{
     font-family:'Inter',sans-serif;
-    background:
-      radial-gradient(circle at 15% -10%, var(--blue-100) 0%, transparent 45%),
-      radial-gradient(circle at 110% 5%, var(--blue-100) 0%, transparent 40%),
-      var(--white);
+    background:var(--white);
     color:var(--navy);
     height:100dvh;
     display:flex;
@@ -55,6 +52,7 @@
     display:flex;
     flex-direction:column;
     position:relative;
+    background:var(--white);
   }
 
   /* ---------- HEADER ---------- */
@@ -84,8 +82,9 @@
     display:block;
     font-size:10px;
     font-weight:700;
-    letter-spacing:0.07em;
+    letter-spacing:0.06em;
     margin-top:5px;
+    white-space:nowrap;
   }
   .brand-blue{ color:var(--blue-700); }
   .brand-black{ color:var(--black); }
@@ -251,8 +250,15 @@
   /* ---------- PRESETS ---------- */
   .presets-head{
     display:flex;
-    align-items:baseline;
+    align-items:center;
     justify-content:space-between;
+    width:100%;
+    background:none;
+    border:none;
+    padding:0;
+    margin:0;
+    cursor:pointer;
+    font-family:inherit;
   }
   .presets-head h2{
     font-family:'Bebas Neue',sans-serif;
@@ -261,13 +267,16 @@
     margin:0;
     color:var(--navy);
   }
-  .presets-head p{
-    margin:0;
-    font-size:9.5px;
+  .presets-head .chevron{
+    width:16px; height:16px;
     color:var(--grey-600);
-    font-weight:600;
-    letter-spacing:0.01em;
+    flex:0 0 auto;
+    transition:transform .25s ease;
   }
+  .presets-head[aria-expanded="true"] .chevron{ transform:rotate(180deg); }
+  #presetGrid, #stopwatchGrid{ display:none; }
+  #presetsSection.open #presetGrid{ display:grid; }
+  #stopwatchSection.open #stopwatchGrid{ display:grid; }
   .grid{
     display:grid;
     grid-template-columns:repeat(4, 1fr);
@@ -398,7 +407,7 @@
 
     <div class="interval-row">
       <div class="interval-badge" id="intervalBadge">PRONTO PARA COMEÇAR</div>
-      <button class="reset-link" id="resetCountBtn" type="button" title="Reiniciar cronômetro e contagem">reiniciar</button>
+      <button class="reset-link" id="resetCountBtn" type="button" title="Reiniciar apenas o tempo (não afeta os intervalos)">reiniciar</button>
     </div>
 
     <div class="timer-wrap">
@@ -420,18 +429,18 @@
     </div>
 
     <div id="presetsSection">
-      <div class="presets-head">
-        <h2>TEMPOS PRÉ-DEFINIDOS</h2>
-        <p>toque · lápis edita</p>
-      </div>
+      <button class="presets-head" id="presetsToggleBtn" type="button" aria-expanded="false">
+        <h2>PRESETS</h2>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
       <div class="grid grid-3" id="presetGrid"></div>
     </div>
 
     <div id="stopwatchSection" style="display:none;">
-      <div class="presets-head">
+      <button class="presets-head" id="stopwatchToggleBtn" type="button" aria-expanded="false">
         <h2>METAS DO CRONÔMETRO</h2>
-        <p>toque · lápis edita</p>
-      </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
       <div class="grid grid-3" id="stopwatchGrid"></div>
     </div>
 
@@ -472,8 +481,10 @@
   // ---------- DOM ----------
   var grid = document.getElementById('presetGrid');
   var presetsSection = document.getElementById('presetsSection');
+  var presetsToggleBtn = document.getElementById('presetsToggleBtn');
   var stopwatchGrid = document.getElementById('stopwatchGrid');
   var stopwatchSection = document.getElementById('stopwatchSection');
+  var stopwatchToggleBtn = document.getElementById('stopwatchToggleBtn');
   var timeDisplay = document.getElementById('timeDisplay');
   var timeLabel = document.getElementById('timeLabel');
   var intervalBadge = document.getElementById('intervalBadge');
@@ -628,9 +639,6 @@
         var val = document.createElement('div');
         val.className = 'val';
         val.textContent = formatTime(sec);
-        var tag2 = document.createElement('div');
-        tag2.className = 'tag';
-        tag2.textContent = 'CARD ' + (idx+1);
 
         card.addEventListener('click', function(){
           if(running) return;
@@ -644,7 +652,6 @@
 
         card.appendChild(editBtn);
         card.appendChild(val);
-        card.appendChild(tag2);
       }
 
       grid.appendChild(card);
@@ -756,6 +763,18 @@
   modeStopwatchBtn.addEventListener('click', function(){ setMode('stopwatch'); });
 
   // =========================================================
+  // MENUS SUSPENSOS: PRESETS / METAS DO CRONÔMETRO
+  // =========================================================
+  presetsToggleBtn.addEventListener('click', function(){
+    var isOpen = presetsSection.classList.toggle('open');
+    presetsToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  stopwatchToggleBtn.addEventListener('click', function(){
+    var isOpen = stopwatchSection.classList.toggle('open');
+    stopwatchToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  // =========================================================
   // PLAY / PAUSE — único controle de acionamento, dentro do círculo
   // =========================================================
   function tickCountdown(){
@@ -825,8 +844,6 @@
 
   resetCountBtn.addEventListener('click', function(){
     pauseTimer();
-    intervalCount = 0;
-    intervalBadge.textContent = 'PRONTO PARA COMEÇAR';
     remaining = presets[selectedIndex];
     elapsed = 0;
     targetReached = false;
