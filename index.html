@@ -424,7 +424,7 @@
         <h2>TEMPOS PRÉ-DEFINIDOS</h2>
         <p>toque · lápis edita</p>
       </div>
-      <div class="grid" id="presetGrid"></div>
+      <div class="grid grid-3" id="presetGrid"></div>
     </div>
 
     <div id="stopwatchSection" style="display:none;">
@@ -445,7 +445,7 @@
   // ESTADO DO CRONÔMETRO (play/pause dentro do círculo)
   // =========================================================
   var mode = 'countdown'; // 'countdown' | 'stopwatch'
-  var presets = [15,20,30,45,60,90,120,180]; // segundos, no mínimo 8 cards editáveis
+  var presets = [20,30,45,60,90,120]; // segundos, 6 cards editáveis
   var selectedIndex = 0;
 
   var stopwatchPresets = [30,60,120]; // metas editáveis do cronômetro: 30", 60", 2min
