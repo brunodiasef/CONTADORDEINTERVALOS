@@ -274,9 +274,29 @@
     transition:transform .25s ease;
   }
   .presets-head[aria-expanded="true"] .chevron{ transform:rotate(180deg); }
-  #presetGrid, #stopwatchGrid{ display:none; }
-  #presetsSection.open #presetGrid{ display:grid; }
-  #stopwatchSection.open #stopwatchGrid{ display:grid; }
+  .preset-group .grid{ display:none; }
+  .preset-group.open .grid{ display:grid; }
+
+  /* ---------- VIEWS: INDIVIDUAL / DUPLA ---------- */
+  #soloView{ display:flex; flex-direction:column; gap:20px; }
+  #duplaView{ display:flex; flex-direction:column; gap:22px; }
+  .pair-card{ display:flex; flex-direction:column; gap:16px; }
+  .pair-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .pair-title{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:15px;
+    letter-spacing:0.05em;
+    color:var(--navy);
+  }
+  .pair-divider{
+    border:none;
+    border-top:1px solid var(--grey-200);
+    margin:0;
+  }
   .grid{
     display:grid;
     grid-template-columns:repeat(4, 1fr);
@@ -381,6 +401,19 @@
   </header>
 
   <main>
+    <div class="segmented" id="viewSegment">
+      <div class="segmented-thumb" id="viewThumb"></div>
+      <button class="segmented-btn active" id="viewSoloBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c0-4.1 3.4-6.4 7.5-6.4s7.5 2.3 7.5 6.4"/></svg>
+        INDIVIDUAL
+      </button>
+      <button class="segmented-btn" id="viewDuplaBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.2" cy="7.8" r="2.9"/><circle cx="15.8" cy="7.8" r="2.9"/><path d="M2.3 20.5c0-3.3 2.7-5.3 5.9-5.3s5.9 2 5.9 5.3"/><path d="M9.9 20.5c0-3.3 2.7-5.3 5.9-5.3s5.9 2 5.9 5.3"/></svg>
+        DUPLA
+      </button>
+    </div>
+
+    <div id="soloView">
     <div class="segmented" id="exerciseSegment">
       <div class="segmented-thumb thumb-blue" id="exerciseThumb"></div>
       <button class="segmented-btn active" id="startExerciseBtn" type="button">
@@ -428,7 +461,7 @@
       </div>
     </div>
 
-    <div id="presetsSection">
+    <div id="presetsSection" class="preset-group">
       <button class="presets-head" id="presetsToggleBtn" type="button" aria-expanded="false">
         <h2>PRESETS</h2>
         <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -436,12 +469,77 @@
       <div class="grid grid-3" id="presetGrid"></div>
     </div>
 
-    <div id="stopwatchSection" style="display:none;">
+    <div id="stopwatchSection" class="preset-group" style="display:none;">
       <button class="presets-head" id="stopwatchToggleBtn" type="button" aria-expanded="false">
         <h2>METAS DO CRONÔMETRO</h2>
         <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div class="grid grid-3" id="stopwatchGrid"></div>
+    </div>
+    </div>
+
+    <div id="duplaView" style="display:none;">
+      <div class="pair-card" id="pairCardA">
+        <div class="pair-head">
+          <div class="pair-title">ALUNO 1</div>
+          <button class="reset-link" id="pairResetA" type="button" title="Reiniciar este tempo">reiniciar</button>
+        </div>
+        <div class="timer-wrap">
+          <div class="ring-box">
+            <svg class="ring" viewBox="0 0 250 250">
+              <circle class="ring-bg" cx="125" cy="125" r="108"></circle>
+              <circle class="ring-fg" id="pairRingA" cx="125" cy="125" r="108" stroke-dasharray="678.6" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="ring-center">
+              <div class="time-display" id="pairTimeA">00:20</div>
+              <div class="time-label">TEMPO SELECIONADO</div>
+              <button class="play-pause" id="pairPlayA" type="button" aria-label="Iniciar ou pausar contagem do aluno 1">
+                <svg id="pairPlayIconA" viewBox="0 0 24 24" fill="currentColor"><polygon points="7 4 20 12 7 20 7 4"/></svg>
+                <svg id="pairPauseIconA" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4.5" height="16" rx="1.4"/><rect x="13.5" y="4" width="4.5" height="16" rx="1.4"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="pairPresetsA" class="preset-group">
+          <button class="presets-head" id="pairToggleA" type="button" aria-expanded="false">
+            <h2>PRESETS</h2>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="grid grid-3" id="pairGridA"></div>
+        </div>
+      </div>
+
+      <hr class="pair-divider">
+
+      <div class="pair-card" id="pairCardB">
+        <div class="pair-head">
+          <div class="pair-title">ALUNO 2</div>
+          <button class="reset-link" id="pairResetB" type="button" title="Reiniciar este tempo">reiniciar</button>
+        </div>
+        <div class="timer-wrap">
+          <div class="ring-box">
+            <svg class="ring" viewBox="0 0 250 250">
+              <circle class="ring-bg" cx="125" cy="125" r="108"></circle>
+              <circle class="ring-fg" id="pairRingB" cx="125" cy="125" r="108" stroke-dasharray="678.6" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="ring-center">
+              <div class="time-display" id="pairTimeB">00:20</div>
+              <div class="time-label">TEMPO SELECIONADO</div>
+              <button class="play-pause" id="pairPlayB" type="button" aria-label="Iniciar ou pausar contagem do aluno 2">
+                <svg id="pairPlayIconB" viewBox="0 0 24 24" fill="currentColor"><polygon points="7 4 20 12 7 20 7 4"/></svg>
+                <svg id="pairPauseIconB" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4.5" height="16" rx="1.4"/><rect x="13.5" y="4" width="4.5" height="16" rx="1.4"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="pairPresetsB" class="preset-group">
+          <button class="presets-head" id="pairToggleB" type="button" aria-expanded="false">
+            <h2>PRESETS</h2>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="grid grid-3" id="pairGridB"></div>
+        </div>
+      </div>
     </div>
 
   </main>
@@ -900,6 +998,194 @@
   applyMode();
   setPlayPauseIcon();
   applyExerciseStatus();
+
+  // =========================================================
+  // TROCA DE VIEW: INDIVIDUAL ↔ DUPLA
+  // =========================================================
+  var viewThumb = document.getElementById('viewThumb');
+  var viewSoloBtn = document.getElementById('viewSoloBtn');
+  var viewDuplaBtn = document.getElementById('viewDuplaBtn');
+  var soloView = document.getElementById('soloView');
+  var duplaView = document.getElementById('duplaView');
+
+  function setView(view){
+    var isSolo = view === 'solo';
+    viewSoloBtn.classList.toggle('active', isSolo);
+    viewDuplaBtn.classList.toggle('active', !isSolo);
+    viewThumb.classList.toggle('thumb-right', !isSolo);
+    soloView.style.display = isSolo ? 'flex' : 'none';
+    duplaView.style.display = isSolo ? 'none' : 'flex';
+  }
+  viewSoloBtn.addEventListener('click', function(){ setView('solo'); });
+  viewDuplaBtn.addEventListener('click', function(){ setView('dupla'); });
+  setView('solo');
+
+  // =========================================================
+  // ABA DUPLA: dois cronômetros de contagem regressiva
+  // totalmente independentes, um por aluno
+  // =========================================================
+  function createPairTimer(suffix){
+    var presets = [20,30,45,60,90,120];
+    var selectedIndex = 0;
+    var remaining = presets[selectedIndex];
+    var running = false;
+    var timerHandle = null;
+    var editingIndex = null;
+
+    var pGrid = document.getElementById('pairGrid' + suffix);
+    var pSection = document.getElementById('pairPresets' + suffix);
+    var pToggleBtn = document.getElementById('pairToggle' + suffix);
+    var pTimeDisplay = document.getElementById('pairTime' + suffix);
+    var pRingFg = document.getElementById('pairRing' + suffix);
+    var pPlayPauseBtn = document.getElementById('pairPlay' + suffix);
+    var pPlayIcon = document.getElementById('pairPlayIcon' + suffix);
+    var pPauseIcon = document.getElementById('pairPauseIcon' + suffix);
+    var pResetBtn = document.getElementById('pairReset' + suffix);
+
+    function updateRing(){
+      var total = presets[selectedIndex];
+      var frac = total > 0 ? remaining/total : 0;
+      var offset = CIRC * (1 - frac);
+      pRingFg.setAttribute('stroke-dashoffset', offset.toFixed(1));
+      pRingFg.classList.toggle('warn', remaining <= 5 && running);
+    }
+    function renderTimeDisplay(){ pTimeDisplay.textContent = formatTime(remaining); }
+    function setPlayPauseIcon(){
+      pPlayIcon.style.display = running ? 'none' : 'block';
+      pPauseIcon.style.display = running ? 'block' : 'none';
+      pPlayPauseBtn.classList.toggle('is-running', running);
+    }
+
+    function renderGrid(){
+      pGrid.innerHTML = '';
+      presets.forEach(function(sec, idx){
+        var card = document.createElement('div');
+        card.className = 'card' + (idx === selectedIndex ? ' selected' : '') + (running ? ' disabled' : '');
+
+        var editBtn = document.createElement('button');
+        editBtn.className = 'edit-btn';
+        editBtn.type = 'button';
+        editBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+        editBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          if(running) return;
+          editingIndex = idx;
+          renderGrid();
+          var input = card.querySelector('.card-edit-input');
+          if(input){ input.focus(); input.select(); }
+        });
+
+        if(editingIndex === idx){
+          var input = document.createElement('input');
+          input.type = 'number';
+          input.inputMode = 'numeric';
+          input.min = '1';
+          input.max = '5999';
+          input.className = 'card-edit-input';
+          input.value = sec;
+          var tag = document.createElement('div');
+          tag.className = 'tag';
+          tag.textContent = 'segundos';
+
+          function commit(){
+            var v = parseInt(input.value, 10);
+            if(isNaN(v) || v <= 0){ v = sec; }
+            presets[idx] = v;
+            editingIndex = null;
+            if(idx === selectedIndex && !running){
+              remaining = presets[selectedIndex];
+              renderTimeDisplay();
+              updateRing();
+            }
+            renderGrid();
+          }
+          input.addEventListener('keydown', function(e){
+            if(e.key === 'Enter'){ commit(); }
+            if(e.key === 'Escape'){ editingIndex = null; renderGrid(); }
+          });
+          input.addEventListener('blur', commit);
+
+          card.appendChild(editBtn);
+          card.appendChild(input);
+          card.appendChild(tag);
+        } else {
+          var val = document.createElement('div');
+          val.className = 'val';
+          val.textContent = formatTime(sec);
+
+          card.addEventListener('click', function(){
+            if(running) return;
+            selectedIndex = idx;
+            remaining = presets[selectedIndex];
+            renderGrid();
+            renderTimeDisplay();
+            updateRing();
+          });
+
+          card.appendChild(editBtn);
+          card.appendChild(val);
+        }
+
+        pGrid.appendChild(card);
+      });
+    }
+
+    function tick(){
+      remaining -= 1;
+      if(remaining === 5){ playWarningBeeps(); }
+      if(remaining <= 0){
+        remaining = 0;
+        renderTimeDisplay();
+        updateRing();
+        playFinishSound();
+        pause();
+        remaining = presets[selectedIndex];
+        renderTimeDisplay();
+        updateRing();
+        return;
+      }
+      renderTimeDisplay();
+      updateRing();
+    }
+
+    function start(){
+      if(running) return;
+      getCtx();
+      running = true;
+      setPlayPauseIcon();
+      renderGrid();
+      timerHandle = setInterval(tick, 1000);
+    }
+    function pause(){
+      running = false;
+      clearInterval(timerHandle);
+      timerHandle = null;
+      setPlayPauseIcon();
+      renderGrid();
+    }
+
+    pPlayPauseBtn.addEventListener('click', function(){
+      if(running){ pause(); } else { start(); }
+    });
+    pResetBtn.addEventListener('click', function(){
+      pause();
+      remaining = presets[selectedIndex];
+      renderTimeDisplay();
+      updateRing();
+    });
+    pToggleBtn.addEventListener('click', function(){
+      var isOpen = pSection.classList.toggle('open');
+      pToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    renderGrid();
+    renderTimeDisplay();
+    updateRing();
+    setPlayPauseIcon();
+  }
+
+  createPairTimer('A');
+  createPairTimer('B');
 })();
 </script>
 </body>
