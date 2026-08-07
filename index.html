@@ -65,7 +65,7 @@
     gap:11px;
     padding:calc(var(--safe-top) + 12px) 18px 10px;
   }
-  .mark{ width:38px; height:38px; flex:0 0 auto; border-radius:50%; object-fit:cover; display:block; }
+  .mark{ width:76px; height:76px; flex:0 0 auto; border-radius:50%; object-fit:cover; display:block; }
   .brand h1{
     margin:0;
     font-family:'Bebas Neue',sans-serif;
@@ -97,37 +97,48 @@
     gap:14px;
   }
 
-  /* ---------- MODE TOGGLE ---------- */
-  .mode-toggle{
+  /* ---------- SEGMENTED CONTROL (usado tanto para Início/Fim quanto para Contagem/Cronômetro) ---------- */
+  .segmented{
+    position:relative;
     display:grid;
     grid-template-columns:1fr 1fr;
     background:var(--bg-soft);
     border:1px solid var(--grey-200);
-    border-radius:14px;
+    border-radius:16px;
     padding:4px;
-    gap:4px;
+    height:56px;
   }
-  .mode-btn{
+  .segmented-thumb{
+    position:absolute;
+    top:4px; left:4px; bottom:4px;
+    width:calc(50% - 4px);
+    border-radius:12px;
+    background:var(--navy);
+    box-shadow:0 4px 12px -4px rgba(15,30,61,0.4);
+    transition:transform .32s cubic-bezier(.4,0,.2,1), background .2s ease, box-shadow .2s ease;
+    z-index:0;
+  }
+  .segmented-thumb.thumb-right{ transform:translateX(100%); }
+  .segmented-thumb.thumb-blue{ background:var(--blue-700); box-shadow:0 4px 12px -4px rgba(27,77,176,0.45); }
+  .segmented-thumb.thumb-black{ background:var(--black); box-shadow:0 4px 12px -4px rgba(18,20,26,0.4); }
+  .segmented-btn{
+    position:relative;
+    z-index:1;
     background:transparent;
     color:var(--grey-600);
     font-weight:800;
     font-size:11.5px;
-    letter-spacing:0.04em;
-    padding:11px 4px;
-    border-radius:11px;
+    letter-spacing:0.03em;
     display:flex;
     align-items:center;
     justify-content:center;
     gap:6px;
-    transition:background .15s ease, color .15s ease;
+    transition:color .2s ease, opacity .2s ease;
   }
-  .mode-btn svg{ width:14px; height:14px; flex:0 0 auto; }
-  .mode-btn.active{
-    background:var(--navy);
-    color:var(--white);
-    box-shadow:0 4px 12px -4px rgba(15,30,61,0.4);
-  }
-  .mode-toggle.locked .mode-btn{ opacity:0.55; pointer-events:none; }
+  .segmented-btn svg{ width:14px; height:14px; flex:0 0 auto; }
+  .segmented-btn.active{ color:var(--white); }
+  .segmented-btn:disabled{ opacity:0.4; pointer-events:none; }
+  .segmented.locked{ opacity:0.55; pointer-events:none; }
 
   /* ---------- INTERVAL BADGE ---------- */
   .interval-row{
@@ -339,42 +350,14 @@
   /* ---------- BOTTOM ACTION BAR ---------- */
   .action-bar{
     flex:0 0 auto;
-    display:flex;
-    gap:10px;
-    padding:12px 18px calc(var(--safe-bottom) + 14px);
+    padding:10px 18px calc(var(--safe-bottom) + 14px);
     background:var(--white);
     border-top:1px solid var(--grey-200);
     box-shadow:0 -8px 24px -14px rgba(15,30,61,0.25);
   }
-  .btn{
-    flex:1;
-    min-height:56px;
-    border-radius:16px;
-    font-weight:800;
-    font-size:12.5px;
-    letter-spacing:0.02em;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:7px;
-    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease, background .15s ease;
-  }
-  .btn:active{ transform:scale(0.96); }
-  .btn-start{
-    background:linear-gradient(135deg, var(--blue-600), var(--blue-700));
-    color:var(--white);
-    box-shadow:0 8px 18px -6px rgba(27,77,176,0.55);
-  }
-  .btn-start:disabled{ opacity:0.4; box-shadow:none; }
-  .btn-stop{
-    background:var(--black);
-    color:var(--white);
-    box-shadow:0 8px 18px -6px rgba(18,20,26,0.35);
-  }
-  .btn-stop:disabled{ opacity:0.3; box-shadow:none; }
-  .btn svg{ width:15px; height:15px; flex:0 0 auto; }
 </style>
 </head>
+
 <body>
 <div class="app">
 
@@ -387,14 +370,15 @@
   </header>
 
   <main>
-    <div class="mode-toggle" id="modeToggle">
-      <button class="mode-btn active" id="modeCountdownBtn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 3h6"/></svg>
-        CONTAGEM REGRESSIVA
+    <div class="segmented" id="exerciseSegment">
+      <div class="segmented-thumb thumb-blue" id="exerciseThumb"></div>
+      <button class="segmented-btn active" id="startExerciseBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4l16 8-16 8"/></svg>
+        INÍCIO DO EXERCÍCIO
       </button>
-      <button class="mode-btn" id="modeStopwatchBtn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 3h6"/><path d="M17.5 6.5l1.5-1.5"/></svg>
-        CRONÔMETRO
+      <button class="segmented-btn" id="endExerciseBtn" type="button" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        FIM DO EXERCÍCIO
       </button>
     </div>
 
@@ -444,14 +428,17 @@
   </main>
 
   <div class="action-bar">
-    <button class="btn btn-start" id="startExerciseBtn" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4l16 8-16 8"/></svg>
-      INÍCIO DO EXERCÍCIO
-    </button>
-    <button class="btn btn-stop" id="endExerciseBtn" type="button" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-      FIM DO EXERCÍCIO
-    </button>
+    <div class="segmented" id="modeSegment">
+      <div class="segmented-thumb" id="modeThumb"></div>
+      <button class="segmented-btn active" id="modeCountdownBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 3h6"/></svg>
+        CONTAGEM REGRESSIVA
+      </button>
+      <button class="segmented-btn" id="modeStopwatchBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 3h6"/><path d="M17.5 6.5l1.5-1.5"/></svg>
+        CRONÔMETRO
+      </button>
+    </div>
   </div>
 </div>
 
@@ -498,9 +485,12 @@
   var playPauseBtn = document.getElementById('playPauseBtn');
   var playIcon = document.getElementById('playIcon');
   var pauseIcon = document.getElementById('pauseIcon');
-  var modeToggle = document.getElementById('modeToggle');
+  var modeSegment = document.getElementById('modeSegment');
+  var modeThumb = document.getElementById('modeThumb');
   var modeCountdownBtn = document.getElementById('modeCountdownBtn');
   var modeStopwatchBtn = document.getElementById('modeStopwatchBtn');
+  var exerciseSegment = document.getElementById('exerciseSegment');
+  var exerciseThumb = document.getElementById('exerciseThumb');
   var startExerciseBtn = document.getElementById('startExerciseBtn');
   var endExerciseBtn = document.getElementById('endExerciseBtn');
   var statusDot = document.getElementById('statusDot');
@@ -750,6 +740,7 @@
     var isCountdown = mode === 'countdown';
     modeCountdownBtn.classList.toggle('active', isCountdown);
     modeStopwatchBtn.classList.toggle('active', !isCountdown);
+    modeThumb.classList.toggle('thumb-right', !isCountdown);
     presetsSection.style.display = isCountdown ? 'block' : 'none';
     stopwatchSection.style.display = isCountdown ? 'none' : 'block';
     timeLabel.textContent = isCountdown ? 'TEMPO SELECIONADO' : 'TEMPO DECORRIDO';
@@ -819,6 +810,7 @@
     setPlayPauseIcon();
     renderGrid();
     renderStopwatchGrid();
+    modeSegment.classList.add('locked');
     timerHandle = setInterval(mode === 'countdown' ? tickCountdown : tickStopwatch, 1000);
   }
 
@@ -829,6 +821,7 @@
     setPlayPauseIcon();
     renderGrid();
     renderStopwatchGrid();
+    modeSegment.classList.remove('locked');
   }
 
   playPauseBtn.addEventListener('click', function(){
@@ -855,16 +848,31 @@
     if(exerciseStatus === 'idle'){
       startExerciseBtn.disabled = false;
       endExerciseBtn.disabled = true;
+      startExerciseBtn.classList.add('active');
+      endExerciseBtn.classList.remove('active');
+      exerciseThumb.classList.remove('thumb-right');
+      exerciseThumb.classList.remove('thumb-black');
+      exerciseThumb.classList.add('thumb-blue');
       statusDot.className = 'status-dot';
       statusText.textContent = 'PRONTO PARA COMEÇAR O EXERCÍCIO';
     } else if(exerciseStatus === 'started'){
       startExerciseBtn.disabled = true;
       endExerciseBtn.disabled = false;
+      startExerciseBtn.classList.remove('active');
+      endExerciseBtn.classList.add('active');
+      exerciseThumb.classList.add('thumb-right');
+      exerciseThumb.classList.remove('thumb-blue');
+      exerciseThumb.classList.add('thumb-black');
       statusDot.className = 'status-dot on';
       statusText.textContent = 'EXERCÍCIO EM ANDAMENTO';
     } else {
       startExerciseBtn.disabled = false;
       endExerciseBtn.disabled = true;
+      startExerciseBtn.classList.add('active');
+      endExerciseBtn.classList.remove('active');
+      exerciseThumb.classList.remove('thumb-right');
+      exerciseThumb.classList.remove('thumb-black');
+      exerciseThumb.classList.add('thumb-blue');
       statusDot.className = 'status-dot done';
       statusText.textContent = 'SÉRIES CONCLUÍDAS · ' + intervalCount + ' INTERVALO(S)';
     }
